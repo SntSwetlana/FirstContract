@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import './PriceConverter.sol';
 
 contract FundMe {
     using PriceConverter for uint256;
-    uint256 public minimumUsd = 50 * 1e18;
+    uint256 public minimumUsd = 50 * 10 ** 18;
 
     address[] public funders;
 
@@ -19,12 +19,12 @@ contract FundMe {
     }
 
     function fund() public payable {
-        require(msg.value.getConversionRate() >= minimumUsd, "Didn't send enough!"); //1e18 == 1 * (10**18) = 1000000000000000000
+        require(msg.value.getConversionRate() >= minimumUsd, "Didn't send enough ETH!"); //1e18 == 1 * (10**18) = 1000000000000000000
+        addressToAmountFunded[msg.sender] += msg.value;
         funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    function withdraw() public onluOwner {
+    function withdraw() public onlyOwner {
 
         for( uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++ ){
             address funder = funders[funderIndex];
@@ -42,7 +42,7 @@ contract FundMe {
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
     }
-    modifier onluOwner {
+    modifier onlyOwner {
         require(msg.sender == owner, "Sender is not owner!");
         _;
     }
