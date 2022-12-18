@@ -18,7 +18,7 @@ contract FundMe {
         addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    //function withdraw() {}
+    function withdraw() public {}
 
 }
 
